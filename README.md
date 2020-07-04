@@ -32,3 +32,12 @@ git add --all && git commit -m "${COMMIT_MESSAGE}" && git push -u origin HEAD
 
 
 ```
+
+# Docs references
+
+* https://k3d.io/usage/commands/
+* https://rancher.com/docs/k3s/latest/en/installation/install-options/server-config/#k3s-server-cli-help :  all those options you can pass from `k3d` to `k3s` server,  using tehe `k3d` ` --server-arg "<K3S OPTION>"`. Example  `--server-arg "--no-deploy=traefik"`
+* an interesting option is for setting the TLS Certs for the `KUBECONFIG` SAN :
+  * `--tls-san value`  (listener) Add additional hostname or IP as a Subject Alternative Name in the TLS cert
+  * `k3d create cluster topgunCluster --server-arg "--no-deploy=traefik" --server-arg  "--tls-san value"` --masters 5 --workers 9 --api-port "0.0.0.0:6551"
+  * le problème c'est que l'option `--server-arg` ne fonctionne pas avec un `K3D` version `3.x`
