@@ -84,14 +84,9 @@ Server: Docker Engine - Community
  docker-init:
   Version:          0.18.0
   GitCommit:        fec3683
-jbl@pc-alienware-jbl:~$ kubectl version
-error: Missing or incomplete configuration info.  Please point to an existing, complete config file:
 
-  1. Via the command-line flag --kubeconfig
-  2. Via the KUBECONFIG environment variable
-  3. In your home directory as ~/.kube/config
-
-To view or setup config directly use the 'config' command.
+jbl@pc-alienware-jbl:~$ kubectl version --client
+Client Version: version.Info{Major:"1", Minor:"18", GitVersion:"v1.18.0", GitCommit:"9e991415386e4cf155a24b1da15becaa390438d8", GitTreeState:"clean", BuildDate:"2020-03-25T14:58:59Z", GoVersion:"go1.13.8", Compiler:"gc", Platform:"linux/amd64"}
 jbl@pc-alienware-jbl:~$ uname -a
 Linux pc-alienware-jbl 4.9.0-7-amd64 #1 SMP Debian 4.9.110-3+deb9u2 (2018-08-13) x86_64 GNU/Linux
 jbl@pc-alienware-jbl:~$ k3d version
@@ -146,9 +141,11 @@ cat $KUBECONFIG
 * tried another (so much fun) :
 
 ```bash
-k3d create cluster --k3s-server-arg "k3s server --tls-san 'alien.io,192.168.1.28,k3s.alien.io'" topgunCluster --masters 5 --workers 9
+# this one works with no error for sure
+k3d create cluster --k3s-server-arg "k3s server --tls-san 192.168.1.28" topgunCluster --masters 5 --workers 9
 
-# I also tried that one :
+# I also tried those ones :
+# k3d create cluster --k3s-server-arg "k3s server --tls-san 'alien.io,192.168.1.28,k3s.alien.io'" topgunCluster --masters 5 --workers 9
 # k3d create cluster --k3s-server-arg "k3s server --tls-san '192.168.1.28'"  --k3s-agent-arg "k3s agent --tls-san '192.168.1.28'" topgunCluster --masters 5 --workers 9
 
 ```
