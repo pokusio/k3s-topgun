@@ -441,3 +441,10 @@ time="2020-07-05T03:03:07.213100797Z" level=warning msg="no known leader address
 time="2020-07-05T03:03:08.214177063Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=49"
 time="2020-07-05T03:03:09.214769876Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=50"
 ```
+
+* I then checked containers with `docker ps -a`, and indeed : `master-0` was down again, with the same db error.
+
+Alright, so here the failing point is on the data storage, and I will try the following solution :
+* I need a highly available ETCD
+* So i will provision that ETCD , "under `k3s`"
+* and I will connect the cluster to the Etcd service, using the `--datastore-*` options of `K3S`, see https://rancher.com/docs/k3s/latest/en/installation/datastore/
