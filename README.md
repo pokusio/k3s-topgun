@@ -526,6 +526,18 @@ dcoker-compose up -d
   * And how to test ETCD is fine, there and ready :
 
 ```bash
+etcd=$(bin/service_address.sh etcd0 2379)
+curl $etcd/v2/keys
+curl $etcd/v2/keys/foo -XPUT -d value=bar
+
+etcd_all="{$(bin/service_address.sh etcd0 2379),$(bin/service_address.sh etcd1 2379),$(bin/service_address.sh etcd2 2379)}"
+curl $etcd_all/v2/keys
+
+curl $etcd_all/v2/stats/leader
+```
+
+  * stdout of the test (expected `mocha chai http`):
+```bash
 jbl@pc-alienware-jbl:~/docker-compose-etcd$ etcd=$(bin/service_address.sh etcd0 2379)
 jbl@pc-alienware-jbl:~/docker-compose-etcd$ curl $etcd/v2/keys
 {"action":"get","node":{"dir":true}}
