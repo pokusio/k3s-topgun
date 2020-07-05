@@ -392,3 +392,30 @@ rtt min/avg/max/mdev = 0.159/0.200/0.222/0.027 ms
 ## Size, number of masters and stability of the cluster
 
 I had a very unstable cluster, when I used 5 masters, and 9 workers... Why, I do not know, : more tests to run here
+
+#### Failures of the 3 masters / 5 workers cluster size
+
+* I had failures with "the wmall sized" cluster, launched with `k3d create cluster --k3s-server-arg "k3s server --tls-san \"192.168.1.28,0.0.0.0\"" topgunCluster --masters 3 --workers 5`
+* it was `master-0` which had a problem
+* But I could bring back, after executing 4 / 5 times a docker restart :
+
+```bash
+docker logs -f k3d-topgunCluster-master-0
+docker restart k3d-topgunCluster-master-0
+```
+
+What happened, I believe, according the master's logs, is that `etcd` was un reacheable or something like that. Here are le logs of the error :
+
+```bash
+W0705 02:59:02.564496       6 genericapiserver.go:409] Skipping API storage.k8s.io/v1alpha1 because it has no resources.
+W0705 02:59:02.580125       6 genericapiserver.go:409] Skipping API apps/v1beta2 because it has no resources.
+W0705 02:59:02.580140       6 genericapiserver.go:409] Skipping API apps/v1beta1 because it has no resources.
+I0705 02:59:02.587582       6 plugins.go:158] Loaded 12 mutating admission controller(s) successfully in the following order: NamespaceLifecycle,LimitRanger,ServiceAccount,NodeRestriction,TaintNodesByCondition,Priority,DefaultTolerationSeconds,DefaultStorageClass,StorageObjectInUseProtection,RuntimeClass,DefaultIngressClass,MutatingAdmissionWebhook.
+I0705 02:59:02.587596       6 plugins.go:161] Loaded 10 validating admission controller(s) successfully in the following order: LimitRanger,ServiceAccount,Priority,PersistentVolumeClaimResize,RuntimeClass,CertificateApproval,CertificateSigning,CertificateSubjectRestriction,ValidatingAdmissionWebhook,ResourceQuota.
+Assertion failed: db->follower == NULL (src/db.c: db__open_follower: 44)
+```
+
+
+Another thing : I had the exact same issue with `master-1`, but funnily, this time, I could still `kubectl` against the cluster no pb.
+
+I also used the same `docker restart` a fe times to bring it back up (and it worked)
