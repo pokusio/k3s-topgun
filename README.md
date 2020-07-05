@@ -92,6 +92,9 @@ Linux pc-alienware-jbl 4.9.0-7-amd64 #1 SMP Debian 4.9.110-3+deb9u2 (2018-08-13)
 jbl@pc-alienware-jbl:~$ k3d version
 k3d version v3.0.0-rc.6
 k3s version v1.18.4-k3s1 (default)
+jbl@pc-alienware-jbl:~$ k3d --version
+k3d version v3.0.0-rc.6
+k3s version v1.18.4-k3s1 (default)
 jbl@pc-alienware-jbl:~$ k3d create cluster --help
 
 Create a new k3s cluster with containerized nodes (k3s in docker).
@@ -167,8 +170,8 @@ sudo systemctl daemon-reload
 sudo systemctl restart docker
 
 ```
-
-Indeed, you can see below an example of a cluster creation that fails without cleaning, and succeeds after cleaning up :
+* I opened an [issue on k3d](https://github.com/rancher/k3d/issues/295) for this clean up requirement.
+* Indeed, you can see below an example of a cluster creation that fails without cleaning, and succeeds after cleaning up :
 
 ```bash
 jbl@pc-alienware-jbl:~$ k3d create cluster --k3s-server-arg "k3s server --tls-san \"192.168.1.28\"" topgunCluster --masters 5 --workers 9
