@@ -168,8 +168,8 @@ sudo rm /etc/docker/*.json
 docker system prune -f --all && docker system prune -f --volumes
 sudo systemctl daemon-reload
 sudo systemctl restart docker
-
 ```
+
 * I opened an [issue on k3d](https://github.com/rancher/k3d/issues/295) for this clean up requirement.
 * Indeed, you can see below an example of a cluster creation that fails without cleaning, and succeeds after cleaning up :
 
@@ -293,3 +293,98 @@ node/k3d-topguncluster-worker-0   Ready    <none>   37s   v1.18.4+k3s1
 node/k3d-topguncluster-worker-7   Ready    <none>   23s   v1.18.4+k3s1
 jbl@pc-alienware-jbl:~$
 ```
+
+
+* Oky, now I tried again the tls san (so I can kubectl remotely ), and succeeded this way :
+  * I create the cluster with the `k3d create cluster --k3s-server-arg "k3s server --tls-san \"192.168.1.28,0.0.0.0\"" topgunCluster --masters 3 --workers 5` command:
+
+```bash
+jbl@pc-alienware-jbl:~$ k3d create cluster --k3s-server-arg "k3s server --tls-san \"192.168.1.28,0.0.0.0\"" topgunCluster --masters 3 --workers 5
+INFO[0000] Created network 'k3d-topgunCluster'
+INFO[0000] Created volume 'k3d-topgunCluster-images'
+INFO[0000] Creating initializing master node
+INFO[0000] Creating node 'k3d-topgunCluster-master-0'
+INFO[0012] Creating node 'k3d-topgunCluster-master-1'
+INFO[0014] Creating node 'k3d-topgunCluster-master-2'
+INFO[0015] Creating node 'k3d-topgunCluster-worker-0'
+INFO[0016] Creating node 'k3d-topgunCluster-worker-1'
+INFO[0018] Creating node 'k3d-topgunCluster-worker-2'
+INFO[0019] Creating node 'k3d-topgunCluster-worker-3'
+INFO[0020] Creating node 'k3d-topgunCluster-worker-4'
+INFO[0021] Creating LoadBalancer 'k3d-topgunCluster-masterlb'
+INFO[0023] Cluster 'topgunCluster' created successfully!
+INFO[0023] You can now use it like this:
+export KUBECONFIG=$(k3d get kubeconfig topgunCluster)
+kubectl cluster-info
+jbl@pc-alienware-jbl:~$ export KUBECONFIG=$(k3d get kubeconfig topgunCluster)
+jbl@pc-alienware-jbl:~$ kubectl get all,nodes
+NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+service/kubernetes   ClusterIP   10.43.0.1    <none>        443/TCP   31s
+
+NAME                              STATUS   ROLES    AGE   VERSION
+node/k3d-topguncluster-master-0   Ready    master   28s   v1.18.4+k3s1
+node/k3d-topguncluster-worker-3   Ready    <none>   17s   v1.18.4+k3s1
+node/k3d-topguncluster-worker-4   Ready    <none>   16s   v1.18.4+k3s1
+node/k3d-topguncluster-master-1   Ready    master   16s   v1.18.4+k3s1
+node/k3d-topguncluster-worker-2   Ready    <none>   13s   v1.18.4+k3s1
+node/k3d-topguncluster-worker-0   Ready    <none>   16s   v1.18.4+k3s1
+node/k3d-topguncluster-worker-1   Ready    <none>   14s   v1.18.4+k3s1
+node/k3d-topguncluster-master-2   Ready    master   14s   v1.18.4+k3s1
+jbl@pc-alienware-jbl:~$ cat $KUBECONFIG
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJWakNCL3FBREFnRUNBZ0VBTUFvR0NDcUdTTTQ5QkFNQ01DTXhJVEFmQmdOVkJBTU1HR3N6Y3kxelpYSjIKWlhJdFkyRkFNVFU1TXpreE5UTTVOakFlRncweU1EQTNNRFV3TWpFMk16WmFGdzB6TURBM01ETXdNakUyTXpaYQpNQ014SVRBZkJnTlZCQU1NR0dzemN5MXpaWEoyWlhJdFkyRkFNVFU1TXpreE5UTTVOakJaTUJNR0J5cUdTTTQ5CkFnRUdDQ3FHU000OUF3RUhBMElBQkt2S1N5aDZQNUNPY08yQzdndjJLd2kycnM1eStsS1pTeVM2TkFMSnNKRUMKZUtpWFhydGFubCszSlNLMExBTVpITnBOcUtJYVdoRThWY0h6bUJROU1oeWpJekFoTUE0R0ExVWREd0VCL3dRRQpBd0lDcERBUEJnTlZIUk1CQWY4RUJUQURBUUgvTUFvR0NDcUdTTTQ5QkFNQ0EwY0FNRVFDSURLa3pHbk5md05uClp6TXppSHVFZWJsV08wamczNkJEVW5USUV0eTlyMldTQWlCVEd1MTNjZjVxZTMxVnZwTWhyTkplaG83Ni9IemIKQitIMnJOL3g1dDQwRFE9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    server: https://0.0.0.0:38723
+  name: k3d-topgunCluster
+contexts:
+- context:
+    cluster: k3d-topgunCluster
+    user: admin@k3d-topgunCluster
+  name: k3d-topgunCluster
+current-context: k3d-topgunCluster
+kind: Config
+preferences: {}
+users:
+- name: admin@k3d-topgunCluster
+  user:
+    password: a6fb7c6ebc0ee4b94395d080ea16e78e
+    username: admin
+jbl@pc-alienware-jbl:~$
+
+```
+  * Then I copy paster the kubeconfig file, and try to use it from a remote machine, and the strangest thing happened :
+
+```bash
+jibl@poste-devops-jbl-16gbram:~/k3s-topgun$ rm $KUBECONFIG
+jibl@poste-devops-jbl-16gbram:~/k3s-topgun$ vi $KUBECONFIG
+jibl@poste-devops-jbl-16gbram:~/k3s-topgun$ sed -i "s#0.0.0.0#192.168.1.28#g" $KUBECONFIG
+jibl@poste-devops-jbl-16gbram:~/k3s-topgun$ kubectl get all,nodes
+Unable to connect to the server: x509: certificate is valid for 0.0.0.0, 10.43.0.1, 127.0.0.1, 172.20.0.2, 172.20.0.3, 172.20.0.4, not 192.168.1.28
+jibl@poste-devops-jbl-16gbram:~/k3s-topgun$ sed -i "s#192.168.1.28#alien.io#g" $KUBECONFIG
+jibl@poste-devops-jbl-16gbram:~/k3s-topgun$ kubectl get all,nodes
+NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+service/kubernetes   ClusterIP   10.43.0.1    <none>        443/TCP   85s
+
+NAME                              STATUS   ROLES    AGE   VERSION
+node/k3d-topguncluster-worker-4   Ready    <none>   70s   v1.18.4+k3s1
+node/k3d-topguncluster-master-1   Ready    master   70s   v1.18.4+k3s1
+node/k3d-topguncluster-worker-2   Ready    <none>   67s   v1.18.4+k3s1
+node/k3d-topguncluster-worker-1   Ready    <none>   68s   v1.18.4+k3s1
+node/k3d-topguncluster-master-0   Ready    master   82s   v1.18.4+k3s1
+node/k3d-topguncluster-worker-0   Ready    <none>   70s   v1.18.4+k3s1
+node/k3d-topguncluster-master-2   Ready    master   68s   v1.18.4+k3s1
+node/k3d-topguncluster-worker-3   Ready    <none>   71s   v1.18.4+k3s1
+jibl@poste-devops-jbl-16gbram:~/k3s-topgun$ ping -c 4 alien.io
+PING traefik.alien.io (192.168.1.28) 56(84) bytes of data.
+64 bytes from traefik.alien.io (192.168.1.28): icmp_seq=1 ttl=64 time=0.219 ms
+64 bytes from traefik.alien.io (192.168.1.28): icmp_seq=2 ttl=64 time=0.159 ms
+64 bytes from traefik.alien.io (192.168.1.28): icmp_seq=3 ttl=64 time=0.222 ms
+64 bytes from traefik.alien.io (192.168.1.28): icmp_seq=4 ttl=64 time=0.201 ms
+
+--- traefik.alien.io ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3049ms
+rtt min/avg/max/mdev = 0.159/0.200/0.222/0.027 ms
+```
+
+* The strangest thing is that "it works with `alien.io`", and fails if `192.168.1.28`  is used in kubeconfig... Even though it is `192.168.1.28` that is passed with the `--tls-san` option...
