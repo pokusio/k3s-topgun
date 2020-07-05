@@ -443,8 +443,67 @@ time="2020-07-05T03:03:09.214769876Z" level=warning msg="no known leader address
 ```
 
 * I then checked containers with `docker ps -a`, and indeed : `master-0` was down again, with the same db error.
+* Note that it happened many times, and evry time I could bring everything up, by restarting all master nodes with a :
 
-Alright, so here the failing point is on the data storage, and I will try the following solution :
+```bash
+docker restart k3d-topgunCluster-master-1 && docker logs -f k3d-topgunCluster-master-1
+```
+
+Alright, so here the failing point is very likely to be on the data storage, and I will try the following solution :
 * I need a highly available ETCD
 * So i will provision that ETCD , "under `k3s`"
 * and I will connect the cluster to the Etcd service, using the `--datastore-*` options of `K3S`, see https://rancher.com/docs/k3s/latest/en/installation/datastore/
+
+
+### ETCD integration
+
+Alright, now the next test :
+* bring an etcd serice with docker-compose or in any k8s cluster (could be a postgres)
+* and then I will create my cluster that way, to plug in the `ETCD` (`postgres`) :
+
+```bash
+
+k3d create cluster --k3s-server-arg "k3s server --tls-san \"192.168.1.28,0.0.0.0\"" \
+                   topgunCluster2 --masters 3 --workers 5
+
+```
+--datastore-endpoint
+--datastore-cafile
+--datastore-certfile
+--datastore-keyfile
+
+<table>
+<thead>
+<tr>
+<th>CLI Flag</th>
+<th>Environment Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><span style="white-space: nowrap"><code>--datastore-endpoint</code></span></td>
+<td><code>K3S_DATASTORE_ENDPOINT</code></td>
+<td>Specify a PostgresSQL, MySQL, or etcd connection string. This is a string used to describe the connection to the datastore. The structure of this string is specific to each backend and is detailed below.</td>
+</tr>
+
+<tr>
+<td><span style="white-space: nowrap"><code>--datastore-cafile</code></span></td>
+<td><code>K3S_DATASTORE_CAFILE</code></td>
+<td>TLS Certificate Authority (CA) file used to help secure communication with the datastore. If your datastore serves requests over TLS using a certificate signed by a custom certificate authority, you can specify that CA using this parameter so that the K3s client can properly verify the certificate.</td>
+</tr>
+
+<tr>
+<td><span style="white-space: nowrap"><code>--datastore-certfile</code></span></td>
+<td><code>K3S_DATASTORE_CERTFILE</code></td>
+<td>TLS certificate file used for client certificate based authentication to your datastore. To use this feature, your datastore must be configured to support client certificate based authentication. If you specify this parameter, you must also specify the <code>datastore-keyfile</code> parameter.</td>
+</tr>
+
+<tr>
+<td><span style="white-space: nowrap"><code>--datastore-keyfile</code></span></td>
+<td><code>K3S_DATASTORE_KEYFILE</code></td>
+<td>TLS key file used for client certificate based authentication to your datastore. See the previous <code>datastore-certfile</code> parameter for more details.</td>
+</tr>
+</tbody>
+</table>
