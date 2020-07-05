@@ -1,7 +1,6 @@
 # The best I can do with k3s
 
 
-
 ### Provision
 
 * The first thing we need to do with k3s, is to install it.
@@ -295,7 +294,7 @@ jbl@pc-alienware-jbl:~$
 ```
 
 
-* Oky, now I tried again the tls san (so I can kubectl remotely ), and succeeded this way :
+* Okay, now I tried again the tls san (so I can kubectl remotely ), and succeeded this way :
   * I create the cluster with the `k3d create cluster --k3s-server-arg "k3s server --tls-san \"192.168.1.28,0.0.0.0\"" topgunCluster --masters 3 --workers 5` command:
 
 ```bash
@@ -388,3 +387,8 @@ rtt min/avg/max/mdev = 0.159/0.200/0.222/0.027 ms
 ```
 
 * The strangest thing is that "it works with `alien.io`", and fails if `192.168.1.28`  is used in kubeconfig... Even though it is `192.168.1.28` that is passed with the `--tls-san` option...
+
+
+## Size, number of masters and stability of the cluster
+
+I had a very unstable cluster, when I used 5 masters, and 9 workers... Why, I do not know, : more tests to run here
