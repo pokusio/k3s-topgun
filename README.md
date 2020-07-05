@@ -142,8 +142,11 @@ cat $KUBECONFIG
 * tried another (so much fun) :
 
 ```bash
+# this on works for sure with k3d version [3.0.0-rc.6]
+k3d create cluster topgunCluster --masters 5 --workers 9 --no-lb
+
 # this one works with no error for sure : ouch actulaly no, it worked once, and then...
-k3d create cluster --k3s-server-arg "k3s server --tls-san 192.168.1.28" topgunCluster --masters 5 --workers 9
+# k3d create cluster --k3s-server-arg "k3s server --tls-san 192.168.1.28" topgunCluster --masters 5 --workers 9
 
 # I also tried those ones :
 # k3d create cluster --k3s-server-arg "k3s server --tls-san 'alien.io,192.168.1.28,k3s.alien.io'" topgunCluster --masters 5 --workers 9
