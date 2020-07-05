@@ -154,7 +154,8 @@ k3d create cluster --k3s-server-arg "k3s server --tls-san 192.168.1.28" topgunCl
 * clean evertyhing up when k3d created cluster start to get crazy...
 
 ```bash
-k3d delete cluster <cluster name>
+k3d delete cluster topgunCluster
+sudo rm /etc/docker/*.json
 docker system prune -f --all && docker system prune -f --volumes
 sudo systemctl daemon-reload
 sudo systemctl restart docker
