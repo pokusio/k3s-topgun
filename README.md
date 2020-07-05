@@ -84,13 +84,14 @@ Server: Docker Engine - Community
  docker-init:
   Version:          0.18.0
   GitCommit:        fec3683
-
-jbl@pc-alienware-jbl:~$ kubectl version --client
+jbl@pc-alienware-jbl:~$ kubectl version
 Client Version: version.Info{Major:"1", Minor:"18", GitVersion:"v1.18.0", GitCommit:"9e991415386e4cf155a24b1da15becaa390438d8", GitTreeState:"clean", BuildDate:"2020-03-25T14:58:59Z", GoVersion:"go1.13.8", Compiler:"gc", Platform:"linux/amd64"}
+Server Version: version.Info{Major:"1", Minor:"18", GitVersion:"v1.18.4+k3s1", GitCommit:"97b7a0e9df2883f08028fb7171c1e62fc1899a0c", GitTreeState:"clean", BuildDate:"2020-06-18T01:30:45Z", GoVersion:"go1.13.11", Compiler:"gc", Platform:"linux/amd64"}
 jbl@pc-alienware-jbl:~$ uname -a
 Linux pc-alienware-jbl 4.9.0-7-amd64 #1 SMP Debian 4.9.110-3+deb9u2 (2018-08-13) x86_64 GNU/Linux
 jbl@pc-alienware-jbl:~$ k3d version
-k3d version v3.0.0-beta.0
+k3d version v3.0.0-rc.6
+k3s version v1.18.4-k3s1 (default)
 jbl@pc-alienware-jbl:~$ k3d create cluster --help
 
 Create a new k3s cluster with containerized nodes (k3s in docker).
@@ -103,27 +104,28 @@ Usage:
 
 Flags:
   -a, --api-port --api-port [HOST:]HOSTPORT                            Specify the Kubernetes API server port exposed on the LoadBalancer (Format: --api-port [HOST:]HOSTPORT)
-                                                                        - Example: `k3d create -m 3 -a 0.0.0.0:6550` (default "6443")
+                                                                        - Example: `k3d create -m 3 -a 0.0.0.0:6550` (default "random")
   -h, --help                                                           help for cluster
-  -i, --image string                                                   Specify k3s image that you want to use for the nodes (default "docker.io/rancher/k3s:v1.17.4-k3s1")
+  -i, --image string                                                   Specify k3s image that you want to use for the nodes (default "docker.io/rancher/k3s:v1.18.4-k3s1")
       --k3s-agent-arg k3s agent                                        Additional args passed to the k3s agent command on worker nodes (new flag per arg)
       --k3s-server-arg k3s server                                      Additional args passed to the k3s server command on master nodes (new flag per arg)
   -m, --masters int                                                    Specify how many masters you want to create (default 1)
       --network string                                                 Join an existing network
       --no-image-volume                                                Disable the creation of a volume for importing images
+      --no-lb                                                          Disable the creation of a LoadBalancer in front of the master nodes
   -p, --port [HOST:][HOSTPORT:]CONTAINERPORT[/PROTOCOL][@NODEFILTER]   Map ports from the node containers to the host (Format: [HOST:][HOSTPORT:]CONTAINERPORT[/PROTOCOL][@NODEFILTER])
                                                                         - Example: `k3d create -w 2 -p 8080:80@worker[0] -p 8081@worker[1]`
-      --secret string                                                  Specify a cluster secret. By default, we generate one.
+      --switch                                                         Directly switch the default kubeconfig's current-context to the new cluster's context (implies --update-kubeconfig)
       --timeout duration                                               Rollback changes if cluster couldn't be created in specified duration.
+      --token string                                                   Specify a cluster token. By default, we generate one.
       --update-kubeconfig                                              Directly update the default kubeconfig with the new cluster's context
   -v, --volume --volume [SOURCE:]DEST[@NODEFILTER[;NODEFILTER...]]     Mount volumes into the nodes (Format: --volume [SOURCE:]DEST[@NODEFILTER[;NODEFILTER...]]
                                                                         - Example: `k3d create -w 2 -v /my/path@worker[0,1] -v /tmp/test:/tmp/other@master[0]`
-      --wait                                                           Wait for the master(s) to be ready before returning. Use '--timeout DURATION' to not wait forever.
+      --wait                                                           Wait for the master(s) to be ready before returning. Use '--timeout DURATION' to not wait forever. (default true)
   -w, --workers int                                                    Specify how many workers you want to create
 
 Global Flags:
-  -r, --runtime string   Choose a container runtime environment [docker, containerd] (default "docker")
-      --verbose          Enable verbose output (debug logging)
+      --verbose   Enable verbose output (debug logging)
 jbl@pc-alienware-jbl:~$
 
 ```
@@ -164,4 +166,127 @@ docker system prune -f --all && docker system prune -f --volumes
 sudo systemctl daemon-reload
 sudo systemctl restart docker
 
+```
+
+Indeed, you can see below an example of a cluster creation that fails without cleaning, and succeeds after cleaning up :
+
+```bash
+jbl@pc-alienware-jbl:~$ k3d create cluster --k3s-server-arg "k3s server --tls-san \"192.168.1.28\"" topgunCluster --masters 5 --workers 9
+INFO[0000] Created network 'k3d-topgunCluster'
+INFO[0000] Created volume 'k3d-topgunCluster-images'
+INFO[0000] Creating initializing master node
+INFO[0000] Creating node 'k3d-topgunCluster-master-0'
+INFO[0013] Creating node 'k3d-topgunCluster-master-1'
+INFO[0014] Creating node 'k3d-topgunCluster-master-2'
+INFO[0016] Creating node 'k3d-topgunCluster-master-3'
+INFO[0018] Creating node 'k3d-topgunCluster-master-4'
+INFO[0019] Creating node 'k3d-topgunCluster-worker-0'
+INFO[0021] Creating node 'k3d-topgunCluster-worker-1'
+INFO[0022] Creating node 'k3d-topgunCluster-worker-2'
+INFO[0023] Creating node 'k3d-topgunCluster-worker-3'
+INFO[0025] Creating node 'k3d-topgunCluster-worker-4'
+INFO[0026] Creating node 'k3d-topgunCluster-worker-5'
+INFO[0027] Creating node 'k3d-topgunCluster-worker-6'
+INFO[0028] Creating node 'k3d-topgunCluster-worker-7'
+INFO[0029] Creating node 'k3d-topgunCluster-worker-8'
+INFO[0030] Creating LoadBalancer 'k3d-topgunCluster-masterlb'
+ERRO[0031] Failed waiting for log message 'start worker processes' from node 'k3d-topgunCluster-masterlb'
+ERRO[0031] Failed to bring up all master nodes (and loadbalancer) in time. Check the logs:
+ERRO[0031] >>> Node 'k3d-topgunCluster-masterlb' (container '3465df51d5ec289044eb794f76d605d1e7fdd2d51e9925b0fdb5ab66d6069166') not running
+ERRO[0031] Failed to bring up cluster
+ERRO[0031] Failed to create cluster >>> Rolling Back
+INFO[0031] Deleting cluster 'topgunCluster'
+INFO[0032] Deleted k3d-topgunCluster-master-0
+INFO[0032] Deleted k3d-topgunCluster-master-1
+INFO[0033] Deleted k3d-topgunCluster-master-2
+INFO[0034] Deleted k3d-topgunCluster-master-3
+INFO[0034] Deleted k3d-topgunCluster-master-4
+INFO[0035] Deleted k3d-topgunCluster-worker-0
+INFO[0036] Deleted k3d-topgunCluster-worker-1
+INFO[0036] Deleted k3d-topgunCluster-worker-2
+INFO[0037] Deleted k3d-topgunCluster-worker-3
+INFO[0038] Deleted k3d-topgunCluster-worker-4
+INFO[0038] Deleted k3d-topgunCluster-worker-5
+INFO[0039] Deleted k3d-topgunCluster-worker-6
+INFO[0040] Deleted k3d-topgunCluster-worker-7
+INFO[0040] Deleted k3d-topgunCluster-worker-8
+INFO[0040] Deleted k3d-topgunCluster-masterlb
+INFO[0040] Deleting cluster network '7935e282ead88eaa3857b79ec4cc22cc2303a7066deac4d7c6dfca7dd0d15ec8'
+FATA[0040] Cluster creation FAILED, all changes have been rolled back!
+jbl@pc-alienware-jbl:~$ k3d delete cluster topgunCluster
+FATA[0000] No nodes found for cluster 'topgunCluster'
+jbl@pc-alienware-jbl:~$ sudo rm /etc/docker/*.json
+jbl@pc-alienware-jbl:~$ docker system prune -f --all && docker system prune -f --volumes
+Deleted Images:
+untagged: rancher/k3s:v1.18.4-k3s1
+untagged: rancher/k3s@sha256:2555ed1896512b320c175859a95a5f1d6a2c64b501a84bc45d853a9bd0be0dfd
+deleted: sha256:8600923bc2c7dda1d67732d4c9498f79204889d4a4619212e5301e8ebd88683c
+deleted: sha256:9112bc341c35bc180f6526457537650bc9c281a60b4960d515422642e137cd6e
+deleted: sha256:4a580f02a4fae85d3c01c88ac827b935db862e2842a4722a0073962f38b7704e
+deleted: sha256:ec1433ebbebd8aefcdc2d9f8bec9668defb5d1e0984a4035c510f99fe4ba0562
+untagged: rancher/k3d-proxy:v3.0.0-rc.6
+untagged: rancher/k3d-proxy@sha256:a9d150f33da45cfab590d8094b034d30510f142332fbb007c1e5030aaddf304f
+deleted: sha256:4b44f08c525f5c026222c8d78635672e3a6150179562f9f9b572a66d9a104600
+deleted: sha256:818da9004fb9448cb438215e04e9c9c5853561c54d17cdc187b0d493c369c314
+deleted: sha256:335fc598937327294d4748e2bc3eec1d6589f7c485a0690d54e0397df64800eb
+deleted: sha256:ec88223b6e690f3a2285f3c13dcff4e18ab75411fc2b63f363d3ec676371487a
+deleted: sha256:7c5c8fccda028cec476ee644a77046ef66b7d9eaa3c57ddc1ac8f64a9aafe07c
+deleted: sha256:c08fbfc0bf8619da11d55fcaad512b2824bd3add3078d3b8ca0e68e9c5e41ab5
+deleted: sha256:f1b5933fe4b5f49bbe8258745cf396afe07e625bdab3168e364daf7c956b6b81
+
+Total reclaimed space: 194MB
+Deleted Volumes:
+k3d-topgunCluster-images
+
+Total reclaimed space: 0B
+jbl@pc-alienware-jbl:~$ sudo systemctl daemon-reload
+jbl@pc-alienware-jbl:~$ sudo systemctl restart docker
+jbl@pc-alienware-jbl:~$ k3d delete cluster topgunCluster
+FATA[0000] No nodes found for cluster 'topgunCluster'
+jbl@pc-alienware-jbl:~$ k3d create cluster --k3s-server-arg "k3s server --tls-san \"192.168.1.28\"" topgunCluster --masters 5 --workers 9
+INFO[0000] Created network 'k3d-topgunCluster'
+INFO[0000] Created volume 'k3d-topgunCluster-images'
+INFO[0000] Creating initializing master node
+INFO[0000] Creating node 'k3d-topgunCluster-master-0'
+INFO[0001] Pulling image 'docker.io/rancher/k3s:v1.18.4-k3s1'
+INFO[0018] Creating node 'k3d-topgunCluster-master-1'
+INFO[0019] Creating node 'k3d-topgunCluster-master-2'
+INFO[0021] Creating node 'k3d-topgunCluster-master-3'
+INFO[0023] Creating node 'k3d-topgunCluster-master-4'
+INFO[0025] Creating node 'k3d-topgunCluster-worker-0'
+INFO[0026] Creating node 'k3d-topgunCluster-worker-1'
+INFO[0027] Creating node 'k3d-topgunCluster-worker-2'
+INFO[0029] Creating node 'k3d-topgunCluster-worker-3'
+INFO[0031] Creating node 'k3d-topgunCluster-worker-4'
+INFO[0032] Creating node 'k3d-topgunCluster-worker-5'
+INFO[0034] Creating node 'k3d-topgunCluster-worker-6'
+INFO[0036] Creating node 'k3d-topgunCluster-worker-7'
+INFO[0038] Creating node 'k3d-topgunCluster-worker-8'
+INFO[0039] Creating LoadBalancer 'k3d-topgunCluster-masterlb'
+INFO[0040] Pulling image 'docker.io/rancher/k3d-proxy:v3.0.0-rc.6'
+INFO[0046] Cluster 'topgunCluster' created successfully!
+INFO[0046] You can now use it like this:
+export KUBECONFIG=$(k3d get kubeconfig topgunCluster)
+kubectl cluster-info
+jbl@pc-alienware-jbl:~$ export KUBECONFIG=$(k3d get kubeconfig topgunCluster)
+jbl@pc-alienware-jbl:~$ kubectl get all,nodes
+NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+service/kubernetes   ClusterIP   10.43.0.1    <none>        443/TCP   52s
+
+NAME                              STATUS   ROLES    AGE   VERSION
+node/k3d-topguncluster-master-0   Ready    master   49s   v1.18.4+k3s1
+node/k3d-topguncluster-master-2   Ready    master   35s   v1.18.4+k3s1
+node/k3d-topguncluster-master-1   Ready    master   32s   v1.18.4+k3s1
+node/k3d-topguncluster-worker-2   Ready    <none>   34s   v1.18.4+k3s1
+node/k3d-topguncluster-worker-1   Ready    <none>   34s   v1.18.4+k3s1
+node/k3d-topguncluster-master-4   Ready    master   31s   v1.18.4+k3s1
+node/k3d-topguncluster-worker-3   Ready    <none>   32s   v1.18.4+k3s1
+node/k3d-topguncluster-worker-4   Ready    <none>   31s   v1.18.4+k3s1
+node/k3d-topguncluster-worker-5   Ready    <none>   28s   v1.18.4+k3s1
+node/k3d-topguncluster-worker-6   Ready    <none>   27s   v1.18.4+k3s1
+node/k3d-topguncluster-master-3   Ready    master   26s   v1.18.4+k3s1
+node/k3d-topguncluster-worker-8   Ready    <none>   24s   v1.18.4+k3s1
+node/k3d-topguncluster-worker-0   Ready    <none>   37s   v1.18.4+k3s1
+node/k3d-topguncluster-worker-7   Ready    <none>   23s   v1.18.4+k3s1
+jbl@pc-alienware-jbl:~$
 ```
