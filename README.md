@@ -139,4 +139,16 @@ mais j'ai trouvé l'alternative :
 
 ```bash
 k3d create cluster --k3s-server-arg "k3s server --tls-san example.com" topgunCluster --masters 5 --workers 9 --api-port "0.0.0.0:6551"
+export KUBECONFIG=$(k3d get kubeconfig topgunCluster)
+kubectl get all,nodes --all-namespaces
+cat $KUBECONFIG
+```
+* tried another (so much fun) :
+
+```bash
+k3d create cluster --k3s-server-arg "k3s server --tls-san 'alien.io,192.168.1.28,k3s.alien.io'" topgunCluster --masters 5 --workers 9
+
+# I also tried that one :
+# k3d create cluster --k3s-server-arg "k3s server --tls-san '192.168.1.28'"  --k3s-agent-arg "k3s agent --tls-san '192.168.1.28'" topgunCluster --masters 5 --workers 9
+
 ```
