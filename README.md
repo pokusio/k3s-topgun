@@ -142,7 +142,7 @@ cat $KUBECONFIG
 * tried another (so much fun) :
 
 ```bash
-# this one works with no error for sure
+# this one works with no error for sure : ouch actulaly no, it worked once, and then...
 k3d create cluster --k3s-server-arg "k3s server --tls-san 192.168.1.28" topgunCluster --masters 5 --workers 9
 
 # I also tried those ones :
