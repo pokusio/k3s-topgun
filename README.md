@@ -138,6 +138,7 @@ export KUBECONFIG=$(k3d get kubeconfig topgunCluster)
 kubectl get all,nodes --all-namespaces
 cat $KUBECONFIG
 ```
+
 * tried another (so much fun) :
 
 ```bash
@@ -147,5 +148,15 @@ k3d create cluster --k3s-server-arg "k3s server --tls-san 192.168.1.28" topgunCl
 # I also tried those ones :
 # k3d create cluster --k3s-server-arg "k3s server --tls-san 'alien.io,192.168.1.28,k3s.alien.io'" topgunCluster --masters 5 --workers 9
 # k3d create cluster --k3s-server-arg "k3s server --tls-san '192.168.1.28'"  --k3s-agent-arg "k3s agent --tls-san '192.168.1.28'" topgunCluster --masters 5 --workers 9
+
+```
+
+* clean evertyhing up when k3d created cluster start to get crazy...
+
+```bash
+k3d delete cluster <cluster name>
+docker system prune -f --all && docker system prune -f --volumes
+sudo systemctl daemon-reload
+sudo systemctl restart docker
 
 ```
