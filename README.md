@@ -548,4 +548,15 @@ jbl@pc-alienware-jbl:~/docker-compose-etcd$ curl $etcd_all/v2/keys
 {"action":"get","node":{"dir":true,"nodes":[{"key":"/foo","value":"bar","modifiedIndex":8,"createdIndex":8}]}}
 jbl@pc-alienware-jbl:~/docker-compose-etcd$
 jbl@pc-alienware-jbl:~/docker-compose-etcd$ curl $etcd_all/v2/stats/leader
+
+[1/3]: localhost:32770/v2/stats/leader --> <stdout>
+--_curl_--localhost:32770/v2/stats/leader
+{"message":"not current leader"}
+[2/3]: localhost:32769/v2/stats/leader --> <stdout>
+--_curl_--localhost:32769/v2/stats/leader
+{"leader":"ade526d28b1f92f7","followers":{"cf1d15c5d194b5c9":{"latency":{"current":0.002654,"average":0.0043555,"standardDeviation":0.003814415289398888,"minimum":0.001218,"maximum":0.01348},"counts":{"fail":0,"success":8}},"d282ac2ce600c1ce":{"latency":{"current":0.001708,"average":0.0042092499999999995,"standardDeviation":0.002915217005215907,"minimum":0.001708,"maximum":0.009956},"counts":{"fail":0,"success":8}}}}
+[3/3]: localhost:32768/v2/stats/leader --> <stdout>
+--_curl_--localhost:32768/v2/stats/leader
+{"message":"not current leader"}jbl@pc-alienware-jbl:~/docker-compose-etcd$
+
 ```
