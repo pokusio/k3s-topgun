@@ -464,13 +464,14 @@ Alright, now the next test :
 ```bash
 
 k3d create cluster --k3s-server-arg "k3s server --tls-san \"192.168.1.28,0.0.0.0\"" \
+                   --k3s-server-arg "k3s server --datastore-endpoint \"value\"" \
+                   --k3s-server-arg "k3s server --datastore-cafile \"value\"" \
+                   --k3s-server-arg "k3s server --datastore-certfile \"value\"" \
+                   --k3s-server-arg "k3s server --datastore-keyfile \"value\"" \
                    topgunCluster2 --masters 3 --workers 5
 
 ```
---datastore-endpoint
---datastore-cafile
---datastore-certfile
---datastore-keyfile
+
 
 <table>
 <thead>
