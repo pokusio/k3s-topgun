@@ -151,7 +151,7 @@ cat $KUBECONFIG
 k3d create cluster topgunCluster --masters 5 --workers 9 --no-lb
 # this one also works with k3d version [3.0.0-rc.6]
 k3d create cluster topgunCluster --masters 5 --workers 9
-# another one that worked, but if you "k3s server --tls-san alien.io" instaed of
+# another one that worked, but if you "k3s server --tls-san alien.io" instead of
 # "k3s server --tls-san \"alien.io\"", then it fails
 k3d create cluster --k3s-server-arg "k3s server --tls-san \"alien.io\"" topgunCluster --masters 5 --workers 9
 #
@@ -160,7 +160,7 @@ k3d create cluster --k3s-server-arg "k3s server --tls-san \"192.168.1.28\"" topg
 #
 ```
 
-* clean evertyhing up between two clusters (when you tear down one, to create another) :
+* clean evertyhing up between two clusters seems required (when you tear down one, to create another) :
 
 ```bash
 k3d delete cluster topgunCluster
