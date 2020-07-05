@@ -418,4 +418,26 @@ Assertion failed: db->follower == NULL (src/db.c: db__open_follower: 44)
 
 Another thing : I had the exact same issue with `master-1`, but funnily, this time, I could still `kubectl` against the cluster no pb.
 
-I also used the same `docker restart` a fe times to bring it back up (and it worked)
+I also used the same `docker restart` to bring it back up, and i had another error (`master-1` looking for a leader, probably `master-0` I guess) :
+
+```bash
+time="2020-07-05T03:02:51.203259175Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=32"
+time="2020-07-05T03:02:52.203821393Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=33"
+time="2020-07-05T03:02:53.204529623Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=34"
+time="2020-07-05T03:02:54.205110108Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=35"
+time="2020-07-05T03:02:55.205734162Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=36"
+time="2020-07-05T03:02:56.206369934Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=37"
+time="2020-07-05T03:02:57.207047518Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=38"
+time="2020-07-05T03:02:58.207641037Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=39"
+time="2020-07-05T03:02:59.208261204Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=40"
+time="2020-07-05T03:03:00.208872535Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=41"
+time="2020-07-05T03:03:01.209401569Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=42"
+time="2020-07-05T03:03:02.209996276Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=43"
+time="2020-07-05T03:03:03.210692553Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=44"
+time="2020-07-05T03:03:04.211298165Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=45"
+time="2020-07-05T03:03:05.211905541Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=46"
+time="2020-07-05T03:03:06.212532503Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=47"
+time="2020-07-05T03:03:07.213100797Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=48"
+time="2020-07-05T03:03:08.214177063Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=49"
+time="2020-07-05T03:03:09.214769876Z" level=warning msg="no known leader address=172.18.0.2:6443 attempt=50"
+```
