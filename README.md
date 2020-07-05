@@ -520,3 +520,32 @@ cd docker-compose-etcd/
 git clone https://github.com/henszey/etcd-browser/ etcd-browser/
 dcoker-compose up -d
 ```
+
+* And now the source code for that `etcd` s in this repo :
+  * So here is how to bring it up : `cd documentation/etcd/example && docker-compose up -d`
+  * And how to test ETCD is fine, there and ready :
+
+```bash
+jbl@pc-alienware-jbl:~/docker-compose-etcd$ etcd=$(bin/service_address.sh etcd0 2379)
+jbl@pc-alienware-jbl:~/docker-compose-etcd$ curl $etcd/v2/keys
+{"action":"get","node":{"dir":true}}
+jbl@pc-alienware-jbl:~/docker-compose-etcd$ curl $etcd/v2/keys/foo -XPUT -d value=bar
+{"action":"set","node":{"key":"/foo","value":"bar","modifiedIndex":8,"createdIndex":8}}
+jbl@pc-alienware-jbl:~/docker-compose-etcd$
+jbl@pc-alienware-jbl:~/docker-compose-etcd$ etcd_all="{$(bin/service_address.sh etcd0 2379),$(bin/service_address.sh etcd1 2379),$(bin/service_address.sh etcd2 2379)}"
+jbl@pc-alienware-jbl:~/docker-compose-etcd$ curl $etcd_all/v2/keys
+
+[1/3]: localhost:32770/v2/keys --> <stdout>
+--_curl_--localhost:32770/v2/keys
+{"action":"get","node":{"dir":true,"nodes":[{"key":"/foo","value":"bar","modifiedIndex":8,"createdIndex":8}]}}
+
+[2/3]: localhost:32769/v2/keys --> <stdout>
+--_curl_--localhost:32769/v2/keys
+{"action":"get","node":{"dir":true,"nodes":[{"key":"/foo","value":"bar","modifiedIndex":8,"createdIndex":8}]}}
+
+[3/3]: localhost:32768/v2/keys --> <stdout>
+--_curl_--localhost:32768/v2/keys
+{"action":"get","node":{"dir":true,"nodes":[{"key":"/foo","value":"bar","modifiedIndex":8,"createdIndex":8}]}}
+jbl@pc-alienware-jbl:~/docker-compose-etcd$
+jbl@pc-alienware-jbl:~/docker-compose-etcd$ curl $etcd_all/v2/stats/leader
+```
