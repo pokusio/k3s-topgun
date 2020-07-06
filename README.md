@@ -572,3 +572,10 @@ jbl@pc-alienware-jbl:~/docker-compose-etcd$ curl $etcd_all/v2/stats/leader
 {"message":"not current leader"}jbl@pc-alienware-jbl:~/docker-compose-etcd$
 
 ```
+
+
+## The Etcd Browser for the Etcd external service for the K3D cluster
+
+![the Etcd Browser](./documentation/images/etcd/ETCD_BROWSER_FOR_MY_K3D_CLUSTER_2020-07-07 00-59-01.png)
+
+So in here , will we see things happen because of the `k3d` `Kubernetes` Cluster, iusing this `etcd` service as external db
