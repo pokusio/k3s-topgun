@@ -581,3 +581,14 @@ https://rancher.com/docs/k3s/latest/en/installation/ha/
 ![the Etcd Browser](./documentation/images/etcd/ETCD_BROWSER_FOR_MY_K3D_CLUSTER_2020-07-07 00-59-01.png)
 
 So in here , will we see things happen because of the `k3d` `Kubernetes` Cluster, iusing this `etcd` service as external db
+
+
+## `K3S` Architecture for high availability
+
+* Default arhchtiecture for `k3s` is one server and an embedded datastore in the one unique server :
+
+![one server](./documentation/k3s-architecture/K3S_ARCHITECTURE_1_2020-07-06T23-31-48.796Z.png)
+
+* `HA` arhchtiecture for `k3s` is many servers and an external datastore :
+
+![HA is many servers and external datastore](./documentation/k3s-architecture/K3S_HA_ARCHITECTURE_Firefox_Screenshot_2020-07-06T23-32-50.009Z.png)
