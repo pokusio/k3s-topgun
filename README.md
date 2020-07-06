@@ -592,3 +592,5 @@ So in here , will we see things happen because of the `k3d` `Kubernetes` Cluster
 * `HA` arhchtiecture for `k3s` is many servers and an external datastore :
 
 ![HA is many servers and external datastore](./documentation/k3s-architecture/K3S_HA_ARCHITECTURE_Firefox_Screenshot_2020-07-06T23-32-50.009Z.png)
+
+* Also, It is possible that in the current verison of `k3d` I work with, version `3.0.0-rc.6` there is an option for external datastore https://github.com/rancher/k3d/issues/232
