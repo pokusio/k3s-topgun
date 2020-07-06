@@ -574,7 +574,9 @@ jbl@pc-alienware-jbl:~/docker-compose-etcd$ curl $etcd_all/v2/stats/leader
 ```
 
 
-## The Etcd Browser for the Etcd external service for the K3D cluster
+## The Etcd Browser for the Etcd external datastore service for the K3D cluster
+
+https://rancher.com/docs/k3s/latest/en/installation/ha/
 
 ![the Etcd Browser](./documentation/images/etcd/ETCD_BROWSER_FOR_MY_K3D_CLUSTER_2020-07-07 00-59-01.png)
 
