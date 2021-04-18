@@ -19,7 +19,7 @@ kubectl config use-context "k3d-${CLUSTER_NAME}"
 
 When the cluster is created, started, here are the cluster info :
 
-```bash
+<pre>
 bash-3.2$ kubectl cluster-info
 Kubernetes master is running at https://0.0.0.0:7888
 CoreDNS is running at https://0.0.0.0:7888/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
@@ -88,4 +88,84 @@ Content-Length: 165
   "reason": "Unauthorized",
   "code": 401
 }
+</pre>
+
+
+After that, note that I tried https://k3d.io/usage/guides/exposing_services/ to access a service deppoyed inside the cluster with ClusterIP Load Balancer, and the damn thing symply worked.
+
+So For the CLusterIP LoadBalancer type method here is my kubectl get all :
+
+```bash
+bash-3.2$ kubectl create deployment nginx --image=nginx
+deployment.apps/nginx created
+bash-3.2$ kubectl create service clusterip nginx --tcp=80:80
+service/nginx created
+bash-3.2$ cat ingress-rapide-nginx-k3d.yaml
+# apiVersion: networking.k8s.io/v1beta1 # for k3s < v1.19
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx
+            port:
+              number: 80
+
+bash-3.2$ kubectl apply -f ingress-rapide-nginx-k3d.yaml
+ingress.networking.k8s.io/nginx created
+bash-3.2$ kubectl get all
+
+NAME                         READY   STATUS    RESTARTS   AGE
+pod/nginx-6799fc88d8-r7gg4   1/1     Running   0          5m8s
+
+NAME                 TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+service/kubernetes   ClusterIP   10.43.0.1      <none>        443/TCP   8m22s
+service/nginx        ClusterIP   10.43.112.75   <none>        80/TCP    4m55s
+
+NAME                    READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/nginx   1/1     1            1           5m8s
+
+NAME                               DESIRED   CURRENT   READY   AGE
+replicaset.apps/nginx-6799fc88d8   1         1         1       5m8s
+bash-3.2$
 ```
+
+Above the Ingress Controller is Traefik, and the Ingress is for Nginx reverse proxy. Plsu I guess it's an old Traefik, Cause its an Ingress here, not an Ingress Route.
+
+So now I want to try same result, but with External IP from External Load Balancer Metallb : expose the entire IP of the service, not just a port number.
+
+
+Ok so I have :
+* to get rid of the bundled Traefik whle provisioning the `k3d` cluster
+* to provision the metallb and configure ts IP range in the network of the docker0 network bridge
+* to provision my own traefik v2
+* to
+
+
+#### Mac Os docker networking specificity
+
+```bash
+
+docker run busybox ping -c 1 docker.for.mac.localhost | awk 'FNR==2 {print $4}' | sed s'/.$//'
+# gave 192.168.65.2
+sudo route -n add -net 172.18.0.0/16 192.168.65.2
+
+```
+
+
+https://github.com/moby/moby/issues/22753#issuecomment-400663231
+
+https://github.com/AlmirKadric-Published/docker-tuntap-osx
+
+https://github.com/moby/moby/issues/22753
+
+ok so on mac there are specificity for networking -> i'll nswitch to another machine
