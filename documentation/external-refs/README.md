@@ -9,3 +9,5 @@
 * https://devopstales.github.io/kubernetes/k8s-metallb-bgp-pfsense/ :
   * I want to try and setup MetalLb in BGP mode instead of Layer  2 ARP mode.
   * `documentation/saved-tutorials/metallb/bgp-mode/1`
+
+* Quick tutorial video on installing GlusterFS on 3 VMs (to then try the GlusterFS CSI in Kubernetes ) : https://www.youtube.com/watch?v=8CJbyBdxcYU

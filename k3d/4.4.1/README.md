@@ -158,14 +158,11 @@ Ok so I have :
 docker run busybox ping -c 1 docker.for.mac.localhost | awk 'FNR==2 {print $4}' | sed s'/.$//'
 # gave 192.168.65.2
 sudo route -n add -net 172.18.0.0/16 192.168.65.2
-
+sudo route -n delete -net 172.18.0.0/16 192.168.65.2
 ```
-
-
-https://github.com/moby/moby/issues/22753#issuecomment-400663231
-
-https://github.com/AlmirKadric-Published/docker-tuntap-osx
-
-https://github.com/moby/moby/issues/22753
-
+* There is no `docker0` bridge on Docker :
+  * https://github.com/moby/moby/issues/22753#issuecomment-400663231
+  * https://github.com/AlmirKadric-Published/docker-tuntap-osx
+  * https://github.com/moby/moby/issues/22753
+* seems like on docker for mac, docker is there from a vitual machine, this would explain why the lack of hardware resources (why i can't run bigger k3d clusters.... nevermind)
 ok so on mac there are specificity for networking -> i'll nswitch to another machine
